@@ -1,40 +1,54 @@
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function UserList() {
-  const [members, setMembers] = useState([]);
-  const [isFetching, setIsFetching] = useState(true);
-  const [requestError, setRequestError] = useState(null);
-  const [reload, setReload] = useState(0);
+const AxiosUsers = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [refreshIndex, setRefreshIndex] = useState(0);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setErrorMsg('');
+
+      const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+      setUsers(response.data);
+
+    } catch (error) {
+      setErrorMsg(error.message || 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setIsFetching(true);
-    setRequestError(null);
+    fetchUsers();
+  }, [refreshIndex]);
 
-    axios
-      .get('https://jsonplaceholder.typicode.com/users')
-      .then((res) => setMembers(res.data))
-      .catch((err) => setRequestError(err.message))
-      .finally(() => setIsFetching(false));
-  }, [reload]);
-
-  if (isFetching) return <p>Récupération des utilisateurs en cours...</p>;
-  if (requestError) return <p>Une erreur est survenue : {requestError}</p>;
+  if (loading) return <p>Chargement des utilisateurs...</p>;
+  if (errorMsg) return <p>Erreur : {errorMsg}</p>;
 
   return (
-    <div>
-      <h2>Liste des membres récupérés via Axios</h2>
-      <button onClick={() => setReload(r => r + 1)}>Recharger les données</button>
-      <ul>
-        {members.map((member) => (
-          <li key={member.id}>
-            {member.name} — {member.email} — {member.address.city}
+    <div className="section-bloc">
+      <h2>Utilisateurs chargés avec Axios</h2>
+
+      <button
+        className="action-btn"
+        onClick={() => setRefreshIndex(prev => prev + 1)}
+      >
+        Actualiser les utilisateurs
+      </button>
+
+      <ul className="liste-elements">
+        {users.map((u) => (
+          <li key={u.id}>
+            {u.name} | {u.email} | {u.address.city}
           </li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
-export default UserList;
+export default AxiosUsers;

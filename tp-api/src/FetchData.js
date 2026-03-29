@@ -1,41 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-function ArticleList() {
-  const [articles, setArticles] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
-  const [reload, setReload] = useState(0);
+const FetchArticles = () => {
+  const [posts, setPosts] = useState([]);
+  const [loadingState, setLoadingState] = useState(true);
+  const [errorText, setErrorText] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const loadPosts = async () => {
+    try {
+      setLoadingState(true);
+      setErrorText('');
+
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des articles');
+      }
+
+      const result = await response.json();
+      setPosts(result);
+
+    } catch (err) {
+      setErrorText(err.message);
+    } finally {
+      setLoadingState(false);
+    }
+  };
 
   useEffect(() => {
-    setIsLoading(true);
-    setFetchError(null);
+    loadPosts();
+  }, [refreshKey]);
 
-    fetch('https://jsonplaceholder.typicode.com/posts')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Problème lors de la récupération des données');
-        }
-        return res.json();
-      })
-      .then((data) => setArticles(data))
-      .catch((err) => setFetchError(err.message))
-      .finally(() => setIsLoading(false));
-  }, [reload]);
-
-  if (isLoading) return <p>Récupération des articles...</p>;
-  if (fetchError) return <p>Une erreur est survenue : {fetchError}</p>;
+  if (loadingState) return <p>Chargement des articles...</p>;
+  if (errorText) return <p>Erreur : {errorText}</p>;
 
   return (
-    <div>
-      <h2>Liste des articles récupérés</h2>
-      <button onClick={() => setReload(r => r + 1)}>Recharger les données</button>
-      <ul>
-        {articles.slice(0, 10).map((article) => (
-          <li key={article.id}>{article.title}</li>
+    <div className="section-bloc">
+      <h2>Articles chargés avec Fetch</h2>
+
+      <button
+        className="action-btn"
+        onClick={() => setRefreshKey(prev => prev + 1)}
+      >
+        Actualiser les articles
+      </button>
+
+      <ul className="liste-elements">
+        {posts.slice(0, 10).map((item) => (
+          <li key={item.id}>{item.title}</li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
-export default ArticleList;
+export default FetchArticles;

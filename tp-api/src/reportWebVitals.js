@@ -1,13 +1,20 @@
-const reportWebVitals = onPerfEntry => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
-    });
-  }
+const trackPerformance = (callback) => {
+
+  if (typeof callback !== 'function') return;
+
+  const loadMetrics = async () => {
+    const metrics = await import('web-vitals');
+
+    const { getCLS, getFID, getFCP, getLCP, getTTFB } = metrics;
+
+    getCLS(callback);
+    getFID(callback);
+    getFCP(callback);
+    getLCP(callback);
+    getTTFB(callback);
+  };
+
+  loadMetrics();
 };
 
-export default reportWebVitals;
+export default trackPerformance;

@@ -1,14 +1,25 @@
-import ArticleList from './FetchData';
-import UserList from './AxiosData';
+import FetchArticles from './FetchData';
+import AxiosUsers from './AxiosData';
 
-function App() {
+const App = () => {
+
   return (
-    <div>
-      <h1>TP — Récupération de données depuis une API avec React</h1>
-      <ArticleList />
-      <UserList />
-    </div>
+    <main className="page-api">
+      
+      <header>
+        <h1>TP — Consommation d’une API avec React</h1>
+      </header>
+
+      <section>
+        <FetchArticles />
+      </section>
+
+      <section>
+        <AxiosUsers />
+      </section>
+
+    </main>
   );
-}
+};
 
 export default App;
